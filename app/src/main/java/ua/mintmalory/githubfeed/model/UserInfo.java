@@ -1,6 +1,6 @@
 package ua.mintmalory.githubfeed.model;
 
-import android.os.Parcelable;
+import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
@@ -8,44 +8,42 @@ import java.io.Serializable;
  * Created by mintmalory on 02.08.16.
  */
 public class UserInfo implements Serializable{
-    private String login;
-    private String avatar_url;
-    private String bio;
-    private String repos_url;
+	@SerializedName("login")
+    private String mUserLogin;
+	
+	@SerializedName("avatar_url")
+    private String mUserAvatarUrl;
+	
+	@SerializedName("bio")
+    private String mUserBiographyInfo;
 
-    public String getLogin() {
-        return login;
+
+    public String getUserLogin() {
+        return mUserLogin;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setUserLogin(String newUserLogin) {
+        mUserLogin = newUserLogin;
     }
 
-    public String getAvatar_url() {
-        return avatar_url;
+    public String getUserAvatarUrl() {
+        return mUserAvatarUrl;
     }
 
-    public void setAvatar_url(String avatar_url) {
-        this.avatar_url = avatar_url;
+    public void setUserAvatarUrl(String newUserAvatarUrl) {
+        mUserAvatarUrl = newUserAvatarUrl;
     }
 
-    public String getBio() {
-        return bio;
+    public String getUserBiographyInfo() {
+        return mUserBiographyInfo;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setUserBiographyInfo(String newUserBiographyInfo) {
+        mUserBiographyInfo = newUserBiographyInfo;
     }
 
-    public String getRepos_url() {
-        return repos_url;
-    }
-
-    public void setRepos_url(String repos_url) {
-        this.repos_url = repos_url;
-    }
 
     public String toString() {
-        return "login: " + login + "\navatar_url: " + avatar_url + "\nbio: " + bio + "\nrepos_url: " + repos_url;
+        return "login: " + mUserLogin + "\navatar_url: " + mUserAvatarUrl + "\nbio: " + mUserBiographyInfo;
     }
 }

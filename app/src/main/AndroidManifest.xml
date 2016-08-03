@@ -18,7 +18,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".DetailedUserInfo"></activity>
+        <activity android:name=".DetailedUserInfoActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="@string/detailed_user_info_activity_name">
+
+        </activity>
     </application>
 
 </manifest>

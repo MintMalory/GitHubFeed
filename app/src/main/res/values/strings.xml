@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">GitHubFeed</string>
     <string name="get_info_btn">GET INFO</string>
+    <string name="detailed_user_info_activity_name">User info</string>
 </resources>

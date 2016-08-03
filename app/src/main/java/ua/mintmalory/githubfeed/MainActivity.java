@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -22,18 +23,19 @@ import ua.mintmalory.githubfeed.model.UserInfo;
 
 public class MainActivity extends AppCompatActivity {
     public static final String ENDPOINT = "https://api.github.com";
+	public static final String USER_INFO_EXTRA_TAG = "ua.mintmalory.githubfeed.MainActivity.USER_INFO_EXTRA_TAG";
     private Button mGetUserInfoBtn;
     private EditText mUserNameEditTxt;
-    private LinearLayout ll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        setContentView(R.layout.activity_main);
+        getSupportActionBar().hide();
         mGetUserInfoBtn = (Button) findViewById(R.id.getUserInfo_btn);
         mUserNameEditTxt = (EditText) findViewById(R.id.userName_editText);
-        ll = (LinearLayout) findViewById(R.id.ll);
+        final View containerView = findViewById(R.id.ll);
 
         if (mGetUserInfoBtn != null) {
             mGetUserInfoBtn.setOnClickListener(new View.OnClickListener() {
@@ -54,23 +56,25 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
                                 if (response.code() == 200) {
 
-                                    //add activity
-
-                                    Snackbar.make(ll, response.body().toString(), Snackbar.LENGTH_LONG)
-                                            .show();
-
+									Intent i = new Intent(getApplicationContext(), DetailedUserInfoActivity.class);
+									i.putExtra(USER_INFO_EXTRA_TAG, response.body());
+									startActivity(i);
+									
                                 } else {
-                                    Snackbar.make(ll, "fail", Snackbar.LENGTH_LONG)
+
+                                    Snackbar.make(containerView, "Sorry! ", Snackbar.LENGTH_LONG)
                                             .show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<UserInfo> call, Throwable t) {
-                            }
+                            
+							}
                         });
                     } else {
-                        Snackbar.make(ll, "No Internet connection", Snackbar.LENGTH_LONG).show();
+						//TODO: add string resourse
+                        Snackbar.make(containerView, "No Internet connection", Snackbar.LENGTH_LONG).show();
                     }
                 }
 
