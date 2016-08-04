@@ -15,7 +15,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private List<RepositoryInfo> mReposList;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-
         public TextView mRepoNameTextView;
         public TextView mRepoLanguageTextView;
 
@@ -25,7 +24,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             mRepoLanguageTextView = (TextView) v.findViewById(R.id.repoLanguage_textView);
         }
     }
-
 
     public RecyclerAdapter(List<RepositoryInfo> reposList) {
         mReposList = reposList;

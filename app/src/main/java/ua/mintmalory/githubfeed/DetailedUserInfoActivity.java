@@ -49,6 +49,7 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
     private CircleImageView mAvatarView;
     private RecyclerView mReposRecyclerView;
     private ArrayList<RepositoryInfo> mReposList;
+    private Retrofit mRetrofit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,10 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             userInfo = (UserInfo) intent.getExtras().getSerializable(MainActivity.USER_INFO_EXTRA_TAG);
+            mRetrofit = new Retrofit.Builder()
+                    .baseUrl(GitHubService.ENDPOINT)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
             getReposList();
         } else {
             userInfo = (UserInfo) savedInstanceState.get(MainActivity.USER_INFO_EXTRA_TAG);
@@ -78,19 +83,13 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
                 .error(R.drawable.error_img)
                 .into(mAvatarView);
 
-
         startAlphaAnimation(mUserNameTitleCollapsed, 0, View.INVISIBLE);
     }
 
     private void getReposList() {
         final View rootView = findViewById(R.id.rootView_coordinatorLayout);
         if (isOnline()) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(MainActivity.ENDPOINT)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            GitHubService service = retrofit.create(GitHubService.class);
+            GitHubService service = mRetrofit.create(GitHubService.class);
             Call<ArrayList<RepositoryInfo>> call = service.getRepositoryInfo(userInfo.getUserLogin());
 
             call.enqueue(new Callback<ArrayList<RepositoryInfo>>() {
@@ -153,14 +152,11 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
 
     private void handleToolbarTitleVisibility(float percentage) {
         if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
-
             if (!mIsTheTitleVisible) {
                 startAlphaAnimation(mUserNameTitleCollapsed, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
                 mIsTheTitleVisible = true;
             }
-
         } else {
-
             if (mIsTheTitleVisible) {
                 startAlphaAnimation(mUserNameTitleCollapsed, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
                 mIsTheTitleVisible = false;
@@ -174,9 +170,7 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
                 startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
                 mIsTheTitleContainerVisible = false;
             }
-
         } else {
-
             if (!mIsTheTitleContainerVisible) {
                 startAlphaAnimation(mTitleContainer, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
                 mIsTheTitleContainerVisible = true;

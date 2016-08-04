@@ -5,14 +5,11 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by mintmalory on 02.08.16.
- */
-public class RepositoryInfo implements Parcelable{
-	@SerializedName("name")
+public class RepositoryInfo implements Parcelable {
+    @SerializedName("name")
     private String mRepoName;
-	
-	@SerializedName("language")
+
+    @SerializedName("language")
     private String mRepoLanguage;
 
     protected RepositoryInfo(Parcel in) {
@@ -44,7 +41,7 @@ public class RepositoryInfo implements Parcelable{
         return mRepoLanguage;
     }
 
-    public void setAvatar_url(String newRepoLanguage) {
+    public void setRepoLanguage(String newRepoLanguage) {
         mRepoLanguage = newRepoLanguage;
     }
 

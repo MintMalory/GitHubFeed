@@ -4,19 +4,15 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-/**
- * Created by mintmalory on 02.08.16.
- */
-public class UserInfo implements Serializable{
-	@SerializedName("login")
+public class UserInfo implements Serializable {
+    @SerializedName("login")
     private String mUserLogin;
-	
-	@SerializedName("avatar_url")
-    private String mUserAvatarUrl;
-	
-	@SerializedName("bio")
-    private String mUserBiographyInfo;
 
+    @SerializedName("avatar_url")
+    private String mUserAvatarUrl;
+
+    @SerializedName("bio")
+    private String mUserBiographyInfo;
 
     public String getUserLogin() {
         return mUserLogin;
@@ -41,7 +37,6 @@ public class UserInfo implements Serializable{
     public void setUserBiographyInfo(String newUserBiographyInfo) {
         mUserBiographyInfo = newUserBiographyInfo;
     }
-
 
     public String toString() {
         return "login: " + mUserLogin + "\navatar_url: " + mUserAvatarUrl + "\nbio: " + mUserBiographyInfo;
