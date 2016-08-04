@@ -6,7 +6,7 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context="ua.mintmalory.githubfeed.MainActivity"
-    android:id="@+id/ll">
+    android:id="@+id/rootView_linearLayout">
 
     <ImageView
         android:id="@+id/imageView"

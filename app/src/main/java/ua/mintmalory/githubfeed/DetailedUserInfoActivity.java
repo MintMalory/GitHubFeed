@@ -1,24 +1,24 @@
 package ua.mintmalory.githubfeed;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
@@ -31,6 +31,7 @@ import ua.mintmalory.githubfeed.model.RepositoryInfo;
 import ua.mintmalory.githubfeed.model.UserInfo;
 
 public class DetailedUserInfoActivity extends AppCompatActivity implements AppBarLayout.OnOffsetChangedListener {
+    public static final String REPOS_LIST_EXTRA_TAG = "ua.mintmalory.githubfeed.DetailedUserInfoActivity.REPOS_LIST_EXTRA_TAG";
     private UserInfo userInfo;
 
     private static final float PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR = 0.9f;
@@ -41,7 +42,7 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
     private boolean mIsTheTitleContainerVisible = true;
 
     private LinearLayout mTitleContainer;
-    private TextView mUseTitle;
+    private TextView mUserNameTitleCollapsed;
     private TextView mUserNameTitle;
     private TextView mUserBioInfo;
     private AppBarLayout mAppBarLayout;
@@ -54,19 +55,42 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed_user_info);
 
-        bindActivity();
+        initActivityViews();
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             userInfo = (UserInfo) intent.getExtras().getSerializable(MainActivity.USER_INFO_EXTRA_TAG);
+            getReposList();
+        } else {
+            userInfo = (UserInfo) savedInstanceState.get(MainActivity.USER_INFO_EXTRA_TAG);
+            mReposList = (ArrayList<RepositoryInfo>) savedInstanceState.get(REPOS_LIST_EXTRA_TAG);
+            mReposRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
+            mReposRecyclerView.setAdapter(new RecyclerAdapter(mReposList));
+        }
 
+        mUserNameTitleCollapsed.setText(userInfo.getUserLogin());
+        mUserNameTitle.setText(userInfo.getUserLogin());
+        mUserBioInfo.setText(userInfo.getUserBiographyInfo());
+        mAppBarLayout.addOnOffsetChangedListener(this);
+        mReposRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(this).build());
+        Picasso.with(this)
+                .load(userInfo.getUserAvatarUrl())
+                .error(R.drawable.error_img)
+                .into(mAvatarView);
+
+
+        startAlphaAnimation(mUserNameTitleCollapsed, 0, View.INVISIBLE);
+    }
+
+    private void getReposList() {
+        final View rootView = findViewById(R.id.rootView_coordinatorLayout);
+        if (isOnline()) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(MainActivity.ENDPOINT)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
             GitHubService service = retrofit.create(GitHubService.class);
-
             Call<ArrayList<RepositoryInfo>> call = service.getRepositoryInfo(userInfo.getUserLogin());
 
             call.enqueue(new Callback<ArrayList<RepositoryInfo>>() {
@@ -77,49 +101,44 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
                         mReposRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
                         mReposRecyclerView.setAdapter(new RecyclerAdapter(mReposList));
                     } else {
-                        Toast.makeText(getApplication(), "error " + response.code(), Toast.LENGTH_LONG).show();
+                        Snackbar.make(rootView, getString(R.string.bad_code_response_error_msg) + response.code(), Snackbar.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ArrayList<RepositoryInfo>> call, Throwable t) {
-                    Toast.makeText(getApplication(), "fail", Toast.LENGTH_LONG).show();
-
+                    Snackbar.make(rootView, getString(R.string.network_error_msg), Snackbar.LENGTH_LONG).show();
                 }
             });
         } else {
-            userInfo = (UserInfo) savedInstanceState.get(MainActivity.USER_INFO_EXTRA_TAG);
-            mReposList = (ArrayList<RepositoryInfo>) savedInstanceState.get("TTT");
-            mReposRecyclerView.setLayoutManager(new LinearLayoutManager(getApplication()));
-            mReposRecyclerView.setAdapter(new RecyclerAdapter(mReposList));
+            Snackbar.make(rootView, getString(R.string.no_internet_error_msg), Snackbar.LENGTH_LONG).show();
         }
-
-        mUseTitle.setText(userInfo.getUserLogin());
-        mUserNameTitle.setText(userInfo.getUserLogin());
-        mUserBioInfo.setText(userInfo.getUserBiographyInfo());
-        mAppBarLayout.addOnOffsetChangedListener(this);
-        Picasso.with(this)
-                .load(userInfo.getUserAvatarUrl())
-                .into(mAvatarView);
-
-        startAlphaAnimation(mUseTitle, 0, View.INVISIBLE);
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putSerializable(MainActivity.USER_INFO_EXTRA_TAG, userInfo);
-        outState.putParcelableArrayList("TTT",mReposList);
-
+        outState.putParcelableArrayList(REPOS_LIST_EXTRA_TAG, mReposList);
     }
 
-    private void bindActivity() {
-        mUseTitle = (TextView) findViewById(R.id.main_textview_title);
+    private boolean isOnline() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void initActivityViews() {
+        mUserNameTitleCollapsed = (TextView) findViewById(R.id.main_title_textview);
         mReposRecyclerView = (RecyclerView) findViewById(R.id.repos_recyclerView);
         mAvatarView = (CircleImageView) findViewById(R.id.avatar_img);
         mUserBioInfo = (TextView) findViewById(R.id.userBio_textView);
         mUserNameTitle = (TextView) findViewById(R.id.userName_textView);
-        mTitleContainer = (LinearLayout) findViewById(R.id.main_linearlayout_title);
+        mTitleContainer = (LinearLayout) findViewById(R.id.main_title_linearlayout);
         mAppBarLayout = (AppBarLayout) findViewById(R.id.main_appbar);
     }
 
@@ -136,14 +155,14 @@ public class DetailedUserInfoActivity extends AppCompatActivity implements AppBa
         if (percentage >= PERCENTAGE_TO_SHOW_TITLE_AT_TOOLBAR) {
 
             if (!mIsTheTitleVisible) {
-                startAlphaAnimation(mUseTitle, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
+                startAlphaAnimation(mUserNameTitleCollapsed, ALPHA_ANIMATIONS_DURATION, View.VISIBLE);
                 mIsTheTitleVisible = true;
             }
 
         } else {
 
             if (mIsTheTitleVisible) {
-                startAlphaAnimation(mUseTitle, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
+                startAlphaAnimation(mUserNameTitleCollapsed, ALPHA_ANIMATIONS_DURATION, View.INVISIBLE);
                 mIsTheTitleVisible = false;
             }
         }

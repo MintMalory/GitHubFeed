@@ -1,5 +1,8 @@
 <resources>
-    <string name="app_name">GitHubFeed</string>
+    <string name="app_name">GitHub Searcher</string>
     <string name="get_info_btn">GET INFO</string>
     <string name="detailed_user_info_activity_name">User info</string>
+    <string name="bad_code_response_error_msg">Error! A network error has occurred. Code response </string>
+    <string name="network_error_msg">Error! A network error has occurred</string>
+    <string name="no_internet_error_msg">Error! Missing Internet connection</string>
 </resources>

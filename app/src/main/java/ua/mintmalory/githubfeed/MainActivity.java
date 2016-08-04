@@ -8,10 +8,8 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -23,7 +21,7 @@ import ua.mintmalory.githubfeed.model.UserInfo;
 
 public class MainActivity extends AppCompatActivity {
     public static final String ENDPOINT = "https://api.github.com";
-	public static final String USER_INFO_EXTRA_TAG = "ua.mintmalory.githubfeed.MainActivity.USER_INFO_EXTRA_TAG";
+    public static final String USER_INFO_EXTRA_TAG = "ua.mintmalory.githubfeed.MainActivity.USER_INFO_EXTRA_TAG";
     private Button mGetUserInfoBtn;
     private EditText mUserNameEditTxt;
 
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().hide();
         mGetUserInfoBtn = (Button) findViewById(R.id.getUserInfo_btn);
         mUserNameEditTxt = (EditText) findViewById(R.id.userName_editText);
-        final View containerView = findViewById(R.id.ll);
+        final View rootView = findViewById(R.id.rootView_linearLayout);
 
         if (mGetUserInfoBtn != null) {
             mGetUserInfoBtn.setOnClickListener(new View.OnClickListener() {
@@ -56,25 +54,21 @@ public class MainActivity extends AppCompatActivity {
                             public void onResponse(Call<UserInfo> call, Response<UserInfo> response) {
                                 if (response.code() == 200) {
 
-									Intent i = new Intent(getApplicationContext(), DetailedUserInfoActivity.class);
-									i.putExtra(USER_INFO_EXTRA_TAG, response.body());
-									startActivity(i);
-									
+                                    Intent i = new Intent(getApplicationContext(), DetailedUserInfoActivity.class);
+                                    i.putExtra(USER_INFO_EXTRA_TAG, response.body());
+                                    startActivity(i);
                                 } else {
-
-                                    Snackbar.make(containerView, "Sorry! ", Snackbar.LENGTH_LONG)
-                                            .show();
+                                    Snackbar.make(rootView, getString(R.string.bad_code_response_error_msg) + response.code(), Snackbar.LENGTH_LONG).show();
                                 }
                             }
 
                             @Override
                             public void onFailure(Call<UserInfo> call, Throwable t) {
-                            
-							}
+                                Snackbar.make(rootView, getString(R.string.network_error_msg), Snackbar.LENGTH_LONG).show();
+                            }
                         });
                     } else {
-						//TODO: add string resourse
-                        Snackbar.make(containerView, "No Internet connection", Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(rootView, getString(R.string.no_internet_error_msg), Snackbar.LENGTH_LONG).show();
                     }
                 }
 
